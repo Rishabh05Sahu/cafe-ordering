@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const menuItemSchema = new mongoose.Schema({
+const itemSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true
@@ -11,7 +11,7 @@ const menuItemSchema = new mongoose.Schema({
     },
     category: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'MenuCategory',
+        ref: 'Menu',
         required: true
     },
     description: {
@@ -23,7 +23,8 @@ const menuItemSchema = new mongoose.Schema({
         trim: true,
         required: true
     }
-});
+},  { collection: 'item' }
+);
 
 
-module.exports = mongoose.model('MenuItem', menuItemSchema);
+module.exports = mongoose.model('item', itemSchema);

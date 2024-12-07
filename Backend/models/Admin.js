@@ -10,7 +10,8 @@ const adminSchema = new mongoose.Schema({
         type: String,
         requires: true
     }
-})
+},  { collection: 'admin' }
+)
 
 
 module.exports = mongoose.model('Admin', adminSchema);

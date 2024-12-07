@@ -11,7 +11,8 @@ const customerSchema = new mongoose.Schema({
         required: true,
     },
     seatNumber: {
-        type: Number
+        type: Number,
+        required: true
     },
     bill: {
         type: String,
@@ -22,7 +23,8 @@ const customerSchema = new mongoose.Schema({
         default: Date.now
     }
 
-});
+},  { collection: 'customer' }
+);
 
 
 module.exports = mongoose.model('Customer', customerSchema);

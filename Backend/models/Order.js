@@ -36,7 +36,8 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     }
-});
+},  { collection: 'order' }
+);
 
 
 module.exports = mongoose.model('Order', orderSchema);
