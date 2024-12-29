@@ -1,5 +1,8 @@
 const express = require('express');
 const menuRoutes = require('./routes/menuRoutes')
+const orderRoutes = require('./routes/orderRoutes')
+const adminRoutes = require('./routes/adminRoutes')
+const customerRoutes = require('./routes/customerRoutes')
 const cors = require('cors');
 const connectDB = require('./config/db');
 const bodyParser = require('body-parser');
@@ -15,7 +18,9 @@ app.use(bodyParser.json());
 
 
 app.use('/menu',menuRoutes);
-
+app.use('/order',orderRoutes);
+app.use('/admin',adminRoutes);
+app.use('/customers',customerRoutes);
 
 app.listen(port,(error)=>{
     if(!error){

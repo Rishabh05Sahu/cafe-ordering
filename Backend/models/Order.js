@@ -27,10 +27,16 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    status: {
+    // order status or bill status
+    ordrStatus: {
         type: String,
         enum: ['pending', 'served'],
         default: 'pending'
+    },
+    billStatus: {
+        type: String,
+        enum: ['Paid', 'Unpaid'],
+        default: 'Unpaid'
     },
     createdAt: {
         type: Date,

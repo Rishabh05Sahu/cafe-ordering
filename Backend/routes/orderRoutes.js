@@ -1,10 +1,12 @@
-// const express =reqire('express');
-// const {placeOrder} = require('../controller/orderController');
+const express =require('express');
+const {placeOrder,allOrder, updateBillStatus, updateOrderStatus} = require('../controller/orderController');
 
 
-// const router = express.Router();
+const router = express.Router();
 
-// router.post('/place-order',placeOrder);
+router.post('/place',placeOrder);
+router.get('/all-order',allOrder);
+router.patch('/status/:orderId',updateOrderStatus);
+router.patch('/bill/:orderId',updateBillStatus);
 
-
-// module.exports = router;
+module.exports = router;

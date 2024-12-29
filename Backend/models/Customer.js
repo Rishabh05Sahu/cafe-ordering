@@ -9,14 +9,7 @@ const customerSchema = new mongoose.Schema({
     phone: {
         type: Number,
         required: true,
-    },
-    seatNumber: {
-        type: Number,
-        required: true
-    },
-    bill: {
-        type: String,
-        enum: ['Paid', 'Unpaid'],
+        unique: true
     },
     createdAt: {
         type: Date,
