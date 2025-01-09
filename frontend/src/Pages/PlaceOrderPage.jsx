@@ -16,7 +16,7 @@ import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { yellow } from "@mui/material/colors";
+
 
 const PlaceOrderPage = () => {
   const navigate = useNavigate();
