@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -16,10 +16,13 @@ import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-
+import { CartContext } from "../CartContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PlaceOrderPage = () => {
   const navigate = useNavigate();
+  const { cart, calculateTotal } = useContext(CartContext);
 
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,9 +38,16 @@ const PlaceOrderPage = () => {
   };
 
   const handleConfirm = () => {
-    console.log("Name:", formData.name);
-    console.log("Phone:", formData.phone);
-    setOpen(false);
+    if (formData.name.trim().length < 3) {
+      toast.error("Name must be at least 3 characters long.");
+    } else if (formData.phone.length !== 10 || isNaN(formData.phone)) {
+      toast.error("Phone number must be exactly 10 digits.");
+    } else {
+      toast.success("Order placed successfully!");
+      console.log("Name:", formData.name);
+      console.log("Phone:", formData.phone);
+      setOpen(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -115,19 +125,21 @@ const PlaceOrderPage = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.map((row) => (
-                <TableRow key={row.desc}>
-                  <TableCell>{row.desc}</TableCell>
-                  <TableCell align="right">{row.qty}</TableCell>
-                  <TableCell align="right">{row.unit}</TableCell>
-                  <TableCell align="right">{ccyFormat(row.price)}</TableCell>
+              {cart.map((cartItem) => (
+                <TableRow key={cartItem.name}>
+                  <TableCell>{cartItem.name}</TableCell>
+                  <TableCell align="right">{cartItem.quantity}</TableCell>
+                  <TableCell align="right">{cartItem.price}</TableCell>
+                  <TableCell align="right">
+                    {ccyFormat(cartItem.quantity * cartItem.price)}
+                  </TableCell>
                 </TableRow>
               ))}
               <TableRow>
                 <TableCell rowSpan={3} />
                 <TableCell colSpan={2}>Subtotal</TableCell>
                 <TableCell align="right">
-                  {ccyFormat(invoiceSubtotal)}
+                  {ccyFormat(calculateTotal())}
                 </TableCell>
               </TableRow>
               <TableRow>
@@ -135,11 +147,15 @@ const PlaceOrderPage = () => {
                 <TableCell align="right">{`${(TAX_RATE * 100).toFixed(
                   0
                 )} %`}</TableCell>
-                <TableCell align="right">{ccyFormat(invoiceTaxes)}</TableCell>
+                <TableCell align="right">
+                  {ccyFormat(calculateTotal() * TAX_RATE)}
+                </TableCell>
               </TableRow>
               <TableRow>
                 <TableCell colSpan={2}>Total</TableCell>
-                <TableCell align="right">{ccyFormat(invoiceTotal)}</TableCell>
+                <TableCell align="right">
+                  {ccyFormat(calculateTotal() + calculateTotal() * TAX_RATE)}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -185,6 +201,8 @@ const PlaceOrderPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ToastContainer />
     </div>
   );
 };

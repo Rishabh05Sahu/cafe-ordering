@@ -1,61 +1,30 @@
-import React from "react";
+import React,{useState} from "react";
 import Sidebar from "../Components/Sidebar/Sidebar";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
+import orderData from "../Data/Order";
+import itemData from "../Data/MenuItems";
+import { Button } from "@mui/material";
 
 const AllOrderPage = () => {
- 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const [servedStatus, setServedStatus] = useState({});
 
-const orders = [
-    {
-      id: 1,
-      seatNo: "A1",
-      items: [
-        { name: "Coffee", quantity: 2 },
-        { name: "Sandwich", quantity: 1 },
-      ],
-    },
-    {
-      id: 2,
-      seatNo: "B2",
-      items: [
-        { name: "Burger", quantity: 1 },
-        { name: "Fries", quantity: 2 },
-      ],
-    },
-    {
-      id: 3,
-      seatNo: "C3",
-      items: [
-        { name: "Pizza", quantity: 3 },
-        { name: "Pasta", quantity: 1 },
-      ],
-    },
-    {
-      id: 4,
-      seatNo: "D4",
-      items: [
-        { name: "Juice", quantity: 2 },
-      ],
-    },
-    {
-      id: 5,
-      seatNo: "E5",
-      items: [
-        { name: "Salad", quantity: 1 },
-        { name: "Soup", quantity: 1 },
-      ],
-    },
-    {
-      id: 6,
-      seatNo: "F6",
-      items: [
-        { name: "Ice Cream", quantity: 3 },
-        { name: "Brownie", quantity: 2 },
-      ],
-    },
-  ];
+  const toggleServedStatus = (orderId) => {
+    setServedStatus((prevStatus) => ({
+      ...prevStatus,
+      [orderId]: !prevStatus[orderId],
+    }));
+  };
+  
+
+  // this function takes item id and find item name in itemData collection
+  const getItemNameById = (menuItemId) => {
+    const item = itemData.find(
+      (menuItem) => menuItem.id === parseInt(menuItemId, 10)
+    );
+    return item ? item.name : "Unknown item";
+  };
 
   return (
     <div className="bg-yellow-100 h-screen">
@@ -69,25 +38,42 @@ const orders = [
         />
       </div>
       <div className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 ">
-          {orders.map((order) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {orderData.map((order) => (
             <div
-              onClick={()=>navigate('/seat-order')}
-              style={{cursor:"pointer"}}
               key={order.id}
-              className="bg-white h-44  shadow-md rounded-lg flex-col items-center justify-center p-4 border-2 border-gray-300 mx-12"
+              className="bg-white h-52 shadow-md rounded-lg flex flex-col justify-between p-4 border-2 border-gray-300 mx-12"
             >
-              <h2 className="text-lg text-center font-semibold">Seat No: {order.seatNo}</h2>
-              <div className="ml-10">
-                <h3>Items:</h3>
-                <ul>
-                    {order.items.map((item,index)=>(
-                        <li key={index}>
-                            {item.name} - {item.quantity}
-                        </li>
+              <div
+                onClick={() => navigate("/seat-order", { state: order })}
+                style={{ cursor: "pointer" }}
+              >
+                <h2 className="text-lg text-center font-semibold">
+                  Seat No: {order.seatNumber}
+                </h2>
+                <div className="ml-10">
+                  <h3>Items:</h3>
+                  <ul>
+                    {order.items.map((item, index) => (
+                      <li key={index}>
+                        {getItemNameById(item.menuItemId)} - {item.quantity}
+                      </li>
                     ))}
-                </ul>
+                  </ul>
+                </div>
               </div>
+              <Button
+                onClick={()=>toggleServedStatus(order.id)}
+                sx={{
+                  backgroundColor: servedStatus[order.id] ? "green" : "red",
+                  "&:hover": {
+                    backgroundColor: servedStatus[order.id]? "darkgreen" : "darkred",
+                  },
+                }}
+                variant="contained"
+              >
+                 {servedStatus[order.id] ? "Served" : "Unserved"}
+              </Button>
             </div>
           ))}
         </div>
