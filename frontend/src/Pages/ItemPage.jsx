@@ -6,18 +6,26 @@ import { useNavigate } from "react-router-dom";
 import itemData from "../Data/MenuItems";
 import { CartContext } from "../CartContext.jsx";
 import { Button } from "@mui/material";
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import MenuButton from "../Components/MenuButton/MenuButton.jsx";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import MenuCategory from "../Data/MenuCategory.js";
+
 
 const ItemPage = () => {
   const navigate = useNavigate();
   const { cart, addToCart, calculateTotal } = useContext(CartContext);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
-  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleQuantityChange = (item, action) => {
-    addToCart(item, action); // Update cart using the context function
+    addToCart(item, action); 
   };
   return (
     <div className="bg-yellow-100 h-screen">
@@ -85,21 +93,41 @@ const ItemPage = () => {
         </div>
       )}
       <Button
-      className="absolute right-24"
-        sx={{
-          borderRadius: "100%",
-          height: "7.1vh",
-          width: "7vh",
-          fontSize: "3.5vh",
-        }}
-        variant="contained"
+        sx={{height:'7.5vh', fontSize:'4vh' ,position:'absolute',right:'10vw', bottom:'10vh', backgroundColor:'black', color:'white', borderRadius:'100%'}}
+        id="basic-button"
+        aria-controls={open ? "basic-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
+        onClick={handleClick}
       >
-        +
+       +
       </Button>
+
+      <Menu
+        
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          "aria-labelledby": "basic-button",
+        }}
+      >
+      {MenuCategory.map((category)=>(
+        <MenuItem key={category.id} onClick={handleClose}>{category.name}</MenuItem>
+      ))}
+       
+      </Menu>
     </div>
   );
 };
 
 export default ItemPage;
-
-

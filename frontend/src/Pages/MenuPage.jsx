@@ -23,7 +23,7 @@ const MenuPage = () => {
       </div>
       <div>
         <ImageList
-          className="ml-52 mt-8"
+          className="ml-52 mt-8 "
           sx={{ width: "70%", height: 510 }}
           cols={3}
           gap={16}
@@ -33,10 +33,11 @@ const MenuPage = () => {
             <ImageListItem
               key={item.id}
               onClick={() => navigate("/item")}
-              style={{ cursor: "pointer" }}
+              style={{ cursor: "pointer", border:'2px solid black', padding:'8px',borderRadius:'4%', height:'90%',width:'95%' }}
             >
              
               <img
+                className="rounded-md "
                 srcSet={`${item.imageUrl}?w=248&fit=crop&auto=format&dpr=2 2x`}
                 src={`${item.imageUrl}?w=248&fit=crop&auto=format`}
                 alt={item.name}
