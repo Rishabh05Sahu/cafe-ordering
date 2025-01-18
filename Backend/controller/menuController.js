@@ -24,6 +24,21 @@ exports.getAllCategories = async (req, res) => {
         });
     }
 };
+exports.getAllItem = async (req, res) => {
+    try {
+        const items = await Items.find({});
+        return res.status(200).json({
+            success: true,
+            items,
+        });
+    } catch (error) {
+        console.error("Error fetching item:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error.",
+        });
+    }
+};
 
 
 exports.menuItemsByCategory = async(req,res)=>{

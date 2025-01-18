@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -10,15 +10,32 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import { Button } from "@mui/material";
-import itemData from "../Data/MenuItems";
 
 const SeatOrderPage = () => {
+  const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
   const navigate = useNavigate();
   const location = useLocation();
   const order = location.state;
-
-
+  const [itemData, setItemData] = useState([]);
   const [isPaid, setIsPaid] = useState(false);
+
+  useEffect(() => {
+    const fetchAllItems = async () => {
+      try {
+        const url = `${backendUrl}/menu/all-item`;
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("HTTP Error", response.status);
+        }
+        const data = await response.json();
+        setItemData(data.items);
+      } catch (error) {
+        console.error("Failed to fetch items:", error);
+      }
+    };
+
+    fetchAllItems();
+  }, []);
 
   const TAX_RATE = 0.07;
 
@@ -28,7 +45,7 @@ const SeatOrderPage = () => {
 
   const calculateSubtotal = (items) => {
     return items.reduce((sum, item) => {
-      const menuItem = itemData.find((menu) => menu.id.toString() === item.menuItemId);
+      const menuItem = itemData.find((menu) => menu._id === item.menuItemId);
       return sum + (menuItem ? menuItem.price * item.quantity : 0);
     }, 0);
   };
@@ -56,7 +73,7 @@ const SeatOrderPage = () => {
       </div>
       <div className="flex-col text-center justify-items-center">
         <h1 className="font-semibold text-xl">Seat No.: {order.seatNumber}</h1>
-        <h2>Name: Rishabh</h2> {/* Update dynamically if customer info is available */}
+        <h2>Name: Rishabh</h2>
         <h2>Phone No.: 7000332087</h2>
 
         <div className="w-3/6 mt-4">
@@ -81,14 +98,14 @@ const SeatOrderPage = () => {
               </TableHead>
               <TableBody>
                 {order.items.map((item) => {
-                  const menuItem = itemData.find((menu) => menu.id.toString() === item.menuItemId);
+                  const menuItem = itemData.find((menu) => menu._id === item.menuItemId);
                   const itemTotal = menuItem ? menuItem.price * item.quantity : 0;
                   return (
                     <TableRow key={item.menuItemId}>
                       <TableCell>{menuItem ? menuItem.name : "Unknown Item"}</TableCell>
                       <TableCell align="right">{item.quantity}</TableCell>
                       <TableCell align="right">{menuItem ? menuItem.price : 0}</TableCell>
-                      <TableCell align="right">{itemTotal}</TableCell>
+                      <TableCell align="right">{itemTotal.toFixed(2)}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -112,7 +129,6 @@ const SeatOrderPage = () => {
         </div>
       </div>
       <div className="flex justify-center gap-52 mt-10">
-     
         <Button
           onClick={() => setIsPaid(!isPaid)}
           sx={{

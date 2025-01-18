@@ -4,7 +4,6 @@ import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Dialog from "@mui/material/Dialog";
@@ -12,23 +11,26 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import TextField from "@mui/material/TextField";
-import IconButton from "@mui/material/IconButton";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import logo from "../assets/logo.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../CartContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PlaceOrderPage = () => {
+  const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
   const navigate = useNavigate();
-  const { cart, calculateTotal } = useContext(CartContext);
-
+  const { cart, addToCart, calculateTotal } = useContext(CartContext);
+  const { seatId } = useParams();
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
   });
+
+  const handleQuantityChange = (item, action) => {
+    addToCart(item, action);
+  };
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -46,7 +48,58 @@ const PlaceOrderPage = () => {
       toast.success("Order placed successfully!");
       console.log("Name:", formData.name);
       console.log("Phone:", formData.phone);
+      handleOrder();
       setOpen(false);
+    }
+  };
+
+  const handleOrder = async () => {
+    const url = `${backendUrl}/order/place`;
+    const seatNumber = { seatId };
+    const customerName = formData.name;
+    const customerNo = formData.phone;
+
+    const items = JSON.parse(localStorage.getItem("cart"));
+    console.log("Cart Data:", items);
+
+    if (!items || items.length === 0) {
+      toast.error("No items in the cart to place an order.");
+      return;
+    }
+
+    const validItems = items.filter((item) => item._id && item.quantity > 0);
+    if (validItems.length === 0) {
+      toast.error("Cart contains invalid items.");
+      return;
+    }
+   
+    const payload = {
+      customerName, 
+      customerNo,
+      seatNumber,
+      items: validItems.map(({ _id, quantity }) => ({
+        menuItemId: _id,
+        quantity,
+      })),
+  };
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data =await response.json();
+    if (response.ok) {
+      console.log("Order placed successfully:", data);
+      toast.success("Order placed successfully!");
+      // localStorage.removeItem("cart");
+    } else {
+      console.error("Error placing order:", data.message);
+      toast.error(`Error: ${data.message}`);
+;
     }
   };
 
@@ -89,52 +142,60 @@ const PlaceOrderPage = () => {
 
   return (
     <div className="bg-yellow-100 h-screen">
-      <div className="flex items-center justify-around gap-96 pt-5 ">
-        <IconButton
-          aria-label="delete"
-          size="large"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowBackIcon fontSize="large" style={{ fontWeight: "bold" }} />
-        </IconButton>
-        <h1 className="font-bold font-sans text-4xl">YOUR ORDER</h1>
-        <img
-          className="h-24 rounded-full border-4 border-black"
-          src={logo}
-          alt=""
-        />
-      </div>
-      <div className="w-3/4 ml-36 mt-4">
-        <TableContainer component={Paper}>
+      <div className="w-3/4 ml-36  ">
+        <div className="flex-col overflow-y-auto max-h-[400px] ">
+          {cart.map((item) => (
+            <div
+              key={item._id}
+              className="bg-yellow-100 w-3/4 h-30 border-2 border-solid border-black p-4 rounded-lg  flex items-center justify-between mt-4 ml-32"
+            >
+              <img
+                className="h-28 w-1/6 rounded-xl"
+                src={item.imageUrl}
+                alt={item.name}
+              />
+              <div className="flex-1 px-4">
+                <h2 className="font-semibold text-lg">{item.name}</h2>
+                <h3 className="font-semibold">Price:{item.price}</h3>
+                <h5>{item.description}</h5>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleQuantityChange(item, "decrement")}
+                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                >
+                  -
+                </button>
+                <input
+                  type="text"
+                  value={
+                    cart.find((cartItem) => cartItem.name === item.name)
+                      ?.quantity || 0
+                  }
+                  readOnly
+                  className="w-12 text-center border border-gray-300 rounded-md"
+                />
+                <button
+                  onClick={() => handleQuantityChange(item, "increment")}
+                  className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <TableContainer>
           <Table
-            sx={{ minWidth: 600, backgroundColor: "rgb(254,249,195)" }}
+            sx={{
+              width: "10%",
+              marginLeft: "14vw",
+              minWidth: 600,
+              backgroundColor: "rgb(254,249,195)",
+            }}
             aria-label="spanning table"
           >
-            <TableHead>
-              <TableRow>
-                <TableCell align="center" colSpan={3}>
-                  Details
-                </TableCell>
-                <TableCell align="right">Price</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Items</TableCell>
-                <TableCell align="right">Qty.</TableCell>
-                <TableCell align="right">price</TableCell>
-                <TableCell align="right">Sum</TableCell>
-              </TableRow>
-            </TableHead>
             <TableBody>
-              {cart.map((cartItem) => (
-                <TableRow key={cartItem.name}>
-                  <TableCell>{cartItem.name}</TableCell>
-                  <TableCell align="right">{cartItem.quantity}</TableCell>
-                  <TableCell align="right">{cartItem.price}</TableCell>
-                  <TableCell align="right">
-                    {ccyFormat(cartItem.quantity * cartItem.price)}
-                  </TableCell>
-                </TableRow>
-              ))}
               <TableRow>
                 <TableCell rowSpan={3} />
                 <TableCell colSpan={2}>Subtotal</TableCell>

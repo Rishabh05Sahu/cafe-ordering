@@ -7,6 +7,7 @@ const tableRoutes = require('./routes/tabelRoutes')
 const cors = require('cors');
 const connectDB = require('./config/db');
 const bodyParser = require('body-parser');
+const upload = require('./middleware/upload'); 
 const port = 4000;
 
 const app = express();
@@ -16,6 +17,13 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use('/img', express.static('upload/img'))
+app.post('/upload', upload.single('upload'), (req, res) => {
+    res.json({
+        success: 1,
+        url: `http://localhost:${port}/img/${req.file.filename}`,
+    })
+})
 
 
 app.use('/menu',menuRoutes);

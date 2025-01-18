@@ -15,13 +15,14 @@ const orderSchema = new mongoose.Schema({
             menuItemId: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'MenuItem',
-                required: true
+                required: true,
             },
             quantity: {
                 type: Number,
                 required: true,
-            }
-        }
+            },
+            _id: false, // Disable _id for subdocuments
+        },
     ],
     totalPrice: {
         type: Number,
@@ -42,7 +43,10 @@ const orderSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     }
-},  { collection: 'order' }
+}, {
+    collection: 'order',
+
+}
 );
 
 

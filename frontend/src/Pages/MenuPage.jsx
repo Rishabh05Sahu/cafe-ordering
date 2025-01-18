@@ -1,39 +1,54 @@
-import React, { useContext } from "react";
-import logo from "../assets/logo.png";
+import React, { useContext,useState, useEffect } from "react";
+
 import ImageList from "@mui/material/ImageList";
 import ImageListItem from "@mui/material/ImageListItem";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
-import { useNavigate } from "react-router-dom";
-import MenuCategory from "../Data/MenuCategory";
+import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../CartContext.jsx";
+import Navbar from "../Components/Navbar/Navbar.jsx";
 
 const MenuPage = () => {
+  const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`
+  
   const navigate = useNavigate();
   const { cart, calculateTotal } = useContext(CartContext);
+  const [MenuCategory, setMenuCategory] = useState([])
+  const { seatId } = useParams();
+  useEffect(() => {
+    
+    const fetchMenuCategory = async()=>{
+      const url = `${backendUrl}/menu/categories`;
+      
+      const response = await fetch(url);
+
+      if(!response.ok){
+        throw new Error('HTTP error ! :', response.status);
+      }
+      const data =await response.json();
+     
+      setMenuCategory(data.categories);
+    }
+  
+    fetchMenuCategory()
+  }, [])
+  
 
   return (
     <div className="bg-yellow-100 h-screen">
-      <div className="flex items-center justify-end gap-96 pt-5 mr-20">
-        <h1 className="font-bold font-sans text-4xl">YOUR CAFE NAME</h1>
-        <img
-          className="h-24 rounded-full border-4 border-black"
-          src={logo}
-          alt=""
-        />
-      </div>
+    
       <div>
         <ImageList
-          className="ml-52 mt-8 "
-          sx={{ width: "70%", height: 510 }}
+          className="ml-52 pt-6 "
+          sx={{ width: "70%", height: 510,opacity:"0.9" }}
           cols={3}
           gap={16}
           rowHeight={260}
         >
           {MenuCategory.map((item) => (
             <ImageListItem
-              key={item.id}
-              onClick={() => navigate("/item")}
-              style={{ cursor: "pointer", border:'2px solid black', padding:'8px',borderRadius:'4%', height:'90%',width:'95%' }}
+              key={item._id}
+              onClick={() => navigate(`/seat-no/${seatId}/item`,{ state: { categoryId: item._id } })}
+              style={{ cursor: "pointer", border:'2px solid black', padding:'18px',borderRadius:'4%', height:'53%',width:'95%' }}
             >
              
               <img
