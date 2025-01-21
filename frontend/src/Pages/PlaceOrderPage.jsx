@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Button } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -19,6 +19,10 @@ import "react-toastify/dist/ReactToastify.css";
 const PlaceOrderPage = () => {
   const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
   const navigate = useNavigate();
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false); 
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0); 
   const { cart, addToCart, calculateTotal } = useContext(CartContext);
   const { seatId } = useParams();
   const [open, setOpen] = useState(false);
@@ -27,6 +31,96 @@ const PlaceOrderPage = () => {
     phone: "",
   });
 
+  const handleSendOtp = async () => {
+    if (formData.phone) {
+      try {
+        // Call your backend API to send OTP
+        const url = `${backendUrl}/order/send-otp`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone }),
+        });
+  
+        if (response.ok) {
+          setIsOtpSent(true);
+          toast.success("OTP sent to your phone!");
+        } else {
+          toast.error("Failed to send OTP. Try again.");
+        }
+      } catch (error) {
+        toast.error("Error sending OTP. Please try later.");
+      }
+    } else {
+      toast.error("Enter a valid phone number.");
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otp) {
+      try {
+        // Call your backend API to verify OTP
+        const url = `${backendUrl}/order/verify-otp`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: formData.phone, otp }),
+        });
+  
+        if (response.ok) {
+          setIsOtpVerified(true);
+          toast.success("OTP verified successfully!");
+        } else {
+          toast.error("Invalid OTP. Please try again.");
+        }
+      } catch (error) {
+        toast.error("Error verifying OTP. Please try later.");
+      }
+    } else {
+      toast.error("Enter the OTP.");
+    }
+  };
+
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) {
+      toast.error(`Please wait ${resendTimer} seconds before resending OTP.`);
+      return;
+    }
+  
+    try {
+      const url = `${backendUrl}/order/send-otp`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: formData.phone }),
+      });
+  
+      if (response.ok) {
+        setIsOtpSent(true);
+        setResendTimer(30); // Cooldown for 30 seconds
+        toast.success("OTP resent successfully!");
+      } else {
+        toast.error("Failed to resend OTP. Try again.");
+      }
+    } catch (error) {
+      toast.error("Error resending OTP. Please try later.");
+    }
+  };
+  
+
+  useEffect(() => {
+    let timer;
+    if (resendTimer > 0) {
+      timer = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer); // Cleanup on unmount
+  }, [resendTimer]);
+
+  
+  
   const handleQuantityChange = (item, action) => {
     addToCart(item, action);
   };
@@ -72,16 +166,16 @@ const PlaceOrderPage = () => {
       toast.error("Cart contains invalid items.");
       return;
     }
-   
+
     const payload = {
-      customerName, 
+      customerName,
       customerNo,
       seatNumber,
       items: validItems.map(({ _id, quantity }) => ({
         menuItemId: _id,
         quantity,
       })),
-  };
+    };
 
     const response = await fetch(url, {
       method: "POST",
@@ -91,15 +185,14 @@ const PlaceOrderPage = () => {
       body: JSON.stringify(payload),
     });
 
-    const data =await response.json();
+    const data = await response.json();
     if (response.ok) {
       console.log("Order placed successfully:", data);
       toast.success("Order placed successfully!");
-      // localStorage.removeItem("cart");
+      localStorage.removeItem("cart");
     } else {
       console.error("Error placing order:", data.message);
       toast.error(`Error: ${data.message}`);
-;
     }
   };
 
@@ -231,37 +324,86 @@ const PlaceOrderPage = () => {
       </Button>
 
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Enter Your Details</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Name"
-            type="text"
-            fullWidth
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-          />
-          <TextField
-            margin="dense"
-            label="Phone Number"
-            type="tel"
-            fullWidth
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="error">
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm} color="primary" variant="contained">
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+  
+  {!isOtpSent && (<DialogTitle>Enter Your Details</DialogTitle>)}
+  <DialogContent>
+    {!isOtpSent && (
+      <>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Name"
+          type="text"
+          fullWidth
+          name="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        />
+        <TextField
+          margin="dense"
+          label="Phone Number"
+          type="tel"
+          fullWidth
+          name="phone"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+        />
+        <Button
+          onClick={handleSendOtp}
+          color="primary"
+          variant="contained"
+          fullWidth
+        >
+          Send OTP
+        </Button>
+      </>
+    )}
+
+    {isOtpSent && !isOtpVerified && (
+      <>
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Enter OTP"
+          type="text"
+          fullWidth
+          value={otp}
+          onChange={(e) => setOtp(e.target.value)}
+        />
+          <Button
+        onClick={handleResendOtp}
+        color="secondary"
+        variant="outlined"
+        disabled={resendTimer > 0}
+        style={{ flex: 1 }}
+      >
+        Resend OTP {resendTimer > 0 ? `(${resendTimer}s)` : ""}
+      </Button>
+        <Button
+          onClick={handleVerifyOtp}
+          color="primary"
+          variant="contained"
+          fullWidth
+        >
+          Verify OTP
+        </Button>
+      </>
+    )}
+  </DialogContent>
+  {isOtpSent && isOtpVerified && (<DialogTitle>Confirm Order</DialogTitle>)}
+  <DialogActions>
+  
+    <Button onClick={handleClose} color="error">
+      Cancel
+    </Button>
+    {isOtpVerified  && (
+      <Button onClick={handleConfirm} color="primary" variant="contained">
+        Confirm
+      </Button>
+    )}
+  </DialogActions>
+</Dialog>
+
 
       <ToastContainer />
     </div>

@@ -71,7 +71,7 @@ const MenuPage = () => {
       </div>
       {cart.length > 0 && (
         <div
-          onClick={() => navigate("/place-order")}
+          onClick={() => navigate(`/seat-no/${seatId}/place-order`)}
           style={{ cursor: "pointer" }}
           className="flex-col place-items-center bg-red-300 rounded-lg w-1/3 m-auto mt-6 p-3 "
         >

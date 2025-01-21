@@ -149,33 +149,46 @@ const Menu = () => {
     }
   };
 
-  const handleRemoveCategory=async(CategoeyId)=>{
-    const url = `${backendUrl}/menu/category/${CategoeyId}`;
+  const handleRemoveCategory=async(categoryId)=>{
+    const url = `${backendUrl}/menu/category/${categoryId}`;
     const response = await fetch(url,{
       method:"DELETE"
     });
-    if(response.ok){
-      const result = await response.json();
-      toast.success("Category removed");
+    if (response.ok) {
+      // Filter out the deleted category from the menuCategory state
+      setMenuCategory((prev) => prev.filter((category) => category._id !== categoryId));
       
+      // If the selected category is deleted, update selectedCategoryId
+      if (selectedCategoryId === categoryId) {
+        setSelectedCategoryId(
+          menuCategory.length > 1 ? menuCategory.find((cat) => cat._id !== categoryId)._id : ""
+        );
+      }
+
+      toast.success("Category removed successfully!");
     }else{
       toast.error("error to remove category")
     }
   }
 
-  const handleRemoveItem=async(itemId)=>{
+  const handleRemoveItem = async (itemId) => {
     const url = `${backendUrl}/menu/item/${itemId}`;
-    const response = await fetch(url,{
-      method:"DELETE"
+    const response = await fetch(url, {
+      method: "DELETE",
     });
-    if(response.ok){
-      const result = await response.json();
-      toast.success("item removed");
-      
-    }else{
-      toast.error("error to remove item")
+  
+    if (response.ok) {
+      // Filter out the deleted item from the menuItems state
+      setItemData((prev) => prev.filter((item) => item._id !== itemId));
+  
+      // Show a success toast message
+      toast.success("Item removed successfully!");
+    } else {
+      // Show an error toast message if the deletion fails
+      toast.error("Error removing item");
     }
-  }
+  };
+  
 
   const filteredItems = itemData.filter((item) => item.category === selectedCategoryId);
 
@@ -208,8 +221,8 @@ const Menu = () => {
                 onClick={() => handleCategoryClick(category)}
               >
                 <span>{category.name}</span>
-                <IconButton aria-label="delete" size="small">
-                  <DeleteIcon onClick={()=>handleRemoveCategory(category._id)} fontSize="small" />
+                <IconButton onClick={()=>handleRemoveCategory(category._id)} aria-label="delete" size="small">
+                  <DeleteIcon  fontSize="small" />
                 </IconButton>
               </li>
             ))}

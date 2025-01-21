@@ -33,7 +33,7 @@ const AllOrderPage = () => {
         throw new Error("HTTP error ! :", response.status);
       }
       const result = await response.json();
-      console.log(result.items);
+     
       setItemData(result.items);
     };
 
@@ -75,10 +75,11 @@ const AllOrderPage = () => {
 
   // this function takes item id and find item name in itemData collection
   const getItemNameById = (menuItemId) => {
-    // console.log(menuItemId);
+  
     const item = itemData.find((menuItem) => menuItem._id === menuItemId);
     return item ? item.name : "Unknown item";
   };
+  
 
   return (
     <div className="bg-yellow-100 h-screen">
@@ -92,7 +93,7 @@ const AllOrderPage = () => {
         />
       </div>
       <div className="p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4  overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
           {orderData.map((order) => (
             <div
               key={order._id}
@@ -109,7 +110,7 @@ const AllOrderPage = () => {
                   <h3>Items:</h3>
                   <ul>
                     {order.items?.map((item, index) => {
-                      const itemName = getItemNameById(item.menuItemId);
+                      const itemName = getItemNameById(item.menuItemId);          
                       return (
                         <li key={index}>
                           {itemName} - {item.quantity}

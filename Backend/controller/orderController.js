@@ -1,6 +1,50 @@
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const Customer = require('../models/Customer');
+const twilio = require("twilio");
+require('dotenv').config();
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const serviceSid = process.env.TWILIO_SERVICE_SID;
+const client = twilio(accountSid, authToken);
+
+exports.sendOtp = async(req, res) => {
+  const { phone } = req.body;
+
+  try {
+    const response = await client.verify.v2.services(serviceSid).verifications.create({
+      to: `+91${phone}`,
+      channel: "sms",
+    });
+    res.json({ success: true, message: "OTP sent successfully!" });
+  } catch (error) {
+    console.error("Error in sendOtp:", error); // Add this for detailed error logs
+    res.status(500).json({ success: false, message: "Failed to send OTP", error });
+  }
+};
+
+
+exports.verifyOtp = async (req, res) => {
+  const { phone, otp } = req.body;
+
+  try {
+    const response = await client.verify.v2.services(serviceSid).verificationChecks.create({
+      to: `+91${phone}`,
+      code: otp,
+    });
+
+    // Use res to send the HTTP response
+    if (response.status === "approved") {
+      res.json({ success: true, message: "OTP verified successfully!" });
+    } else {
+      res.json({ success: false, message: "Invalid OTP" });
+    }
+  } catch (error) {
+    // Use res to send the error response
+    res.status(500).json({ success: false, message: "Failed to verify OTP", error });
+  }
+};
 
 
 exports.updateOrderStatus = async (req, res) => {
