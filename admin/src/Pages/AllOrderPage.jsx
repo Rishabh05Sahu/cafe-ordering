@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../Components/Sidebar/Sidebar";
+import Sidebar from "../Components/Sidebar.jsx";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
@@ -82,7 +82,7 @@ const AllOrderPage = () => {
   
 
   return (
-    <div className="bg-yellow-100 h-screen">
+    <div className="bg-white ">
       <div className="flex items-center justify-between">
         <Sidebar />
         <h1 className="text-4xl">All Orders</h1>
@@ -97,7 +97,7 @@ const AllOrderPage = () => {
           {orderData.map((order) => (
             <div
               key={order._id}
-              className="bg-white h-52 shadow-md rounded-lg flex flex-col justify-between p-4 border-2 border-gray-300 mx-12"
+              className="bg-light_grey  shadow-md rounded-lg flex flex-col justify-between p-4 border-2 border-gray-300 mx-12"
             >
               <div
                 onClick={() => navigate("/seat-order", { state: order })}

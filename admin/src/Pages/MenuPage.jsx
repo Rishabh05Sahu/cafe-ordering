@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
-import Sidebar from "../Components/Sidebar/Sidebar.jsx";
+import Sidebar from "../Components/Sidebar.jsx";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ToastContainer, toast } from "react-toastify";
+import upload_area from "../assets/upload_area.svg";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Button,
@@ -17,9 +18,11 @@ import {
 const Menu = () => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [menuCategory, setMenuCategory] = useState([]);
+  const [menuItems, setMenuItems] = useState([])
   const [itemData, setItemData] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [itemDialog, setItemDialog] = useState(false);
+  const [image, setImage] = useState(false);
   const [newCategory, setNewCategory] = useState({ name: "", imageUrl: "" });
   const [newItem, setNewItem] = useState({
     name: "",
@@ -29,6 +32,10 @@ const Menu = () => {
     imageUrl: "",
   });
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
+  const imageHandler = (e) => {
+    setImage(e.target.files[0]);
+  };
 
   // Fetch menu categories and items
   useEffect(() => {
@@ -90,26 +97,37 @@ const Menu = () => {
 
   const handleItemDialogClose = () => {
     setItemDialog(false);
-    setNewItem({ name: "", price: "", category: "", description: "", imageUrl: "" });
+    setNewItem({
+      name: "",
+      price: "",
+      category: "",
+      description: "",
+      imageUrl: "",
+    });
   };
 
   const handleSaveCategory = async () => {
-    if (!newCategory.name || !newCategory.imageUrl) {
+    if (!newCategory.name || !image) {
       toast.error("Please fill in all fields.");
       return;
     }
+
+    const formData = new FormData();
+    formData.append("name", newCategory.name);
+    formData.append("image", image);
+
     try {
       const url = `${backendUrl}/menu/category`;
       const response = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newCategory),
+        body: formData,
       });
 
       if (response.ok) {
         const result = await response.json();
         setMenuCategory((prev) => [...prev, result.category]);
         toast.success("Category added successfully!");
+        setImage(false);
         handleDialogClose();
       } else {
         toast.error("Error adding category.");
@@ -120,67 +138,78 @@ const Menu = () => {
     }
   };
 
+
   const handleSaveItem = async () => {
-    if (!newItem.name || !newItem.price || !newItem.imageUrl || !selectedCategoryId) {
-      toast.error("Please fill all the required fields.");
+    if (!newItem.name || !newItem.price || !selectedCategoryId || !image) {
+      toast.error("Please fill in all fields.");
       return;
     }
+  
     try {
-      const url = `${backendUrl}/menu/item`;
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...newItem, category: selectedCategoryId }),
+      const formData = new FormData();
+      formData.append('name', newItem.name);
+      formData.append('price', newItem.price);
+      formData.append('category', selectedCategoryId);
+      formData.append('description', newItem.description);
+      formData.append('image', image); // Append the file
+  
+      const response = await fetch(`${backendUrl}/menu/item`, {
+        method: 'POST',
+        body: formData, // Send FormData
       });
-
+  
       if (response.ok) {
         const result = await response.json();
-        setItemData((prev) => [...prev, result.item]);
+        setMenuItems((prev) => [...prev, result.item]);
         toast.success("Item added successfully!");
+        setImage(false);
         handleItemDialogClose();
       } else {
-        toast.error("Failed to add item.");
+        toast.error("Error adding item.");
       }
     } catch (error) {
-      console.error("Error saving item:", error);
+      console.error("Error:", error);
       toast.error("An error occurred while adding the item.");
     }
   };
+  
 
-  const handleRemoveCategory=async(categoryId)=>{
+  const handleRemoveCategory = async (categoryId) => {
     const url = `${backendUrl}/menu/category/${categoryId}`;
-    const response = await fetch(url,{
-      method:"DELETE"
+    const response = await fetch(url, {
+      method: "DELETE",
     });
     if (response.ok) {
       // Filter out the deleted category from the menuCategory state
-      setMenuCategory((prev) => prev.filter((category) => category._id !== categoryId));
-      
+      setMenuCategory((prev) =>
+        prev.filter((category) => category._id !== categoryId)
+      );
+
       // If the selected category is deleted, update selectedCategoryId
       if (selectedCategoryId === categoryId) {
         setSelectedCategoryId(
-          menuCategory.length > 1 ? menuCategory.find((cat) => cat._id !== categoryId)._id : ""
+          menuCategory.length > 1
+            ? menuCategory.find((cat) => cat._id !== categoryId)._id
+            : ""
         );
       }
 
       toast.success("Category removed successfully!");
-    }else{
-      toast.error("error to remove category")
+    } else {
+      toast.error("error to remove category");
     }
-  }
+  };
 
   const handleRemoveItem = async (itemId) => {
     const url = `${backendUrl}/menu/item/${itemId}`;
     const response = await fetch(url, {
       method: "DELETE",
     });
-  
+
     if (response.ok) {
       // Filter out the deleted item from the menuItems state
       setItemData((prev) => prev.filter((item) => item._id !== itemId));
-  
+
       // Show a success toast message
       toast.success("Item removed successfully!");
     } else {
@@ -188,9 +217,10 @@ const Menu = () => {
       toast.error("Error removing item");
     }
   };
-  
 
-  const filteredItems = itemData.filter((item) => item.category === selectedCategoryId);
+  const filteredItems = itemData.filter(
+    (item) => item.category === selectedCategoryId
+  );
 
   return (
     <div className="bg-yellow-100 h-screen">
@@ -207,7 +237,7 @@ const Menu = () => {
 
       <div className="flex mx-16">
         {/* Left Sidebar - Categories */}
-        <div className="w-1/4 bg-white p-4 shadow-md rounded-lg">
+        <div className="w-1/4 bg-white p-4 shadow-md rounded-lg ">
           <h2 className="text-2xl font-semibold mb-3">Categories</h2>
           <ul className="space-y-2">
             {menuCategory.map((category) => (
@@ -221,8 +251,12 @@ const Menu = () => {
                 onClick={() => handleCategoryClick(category)}
               >
                 <span>{category.name}</span>
-                <IconButton onClick={()=>handleRemoveCategory(category._id)} aria-label="delete" size="small">
-                  <DeleteIcon  fontSize="small" />
+                <IconButton
+                  onClick={() => handleRemoveCategory(category._id)}
+                  aria-label="delete"
+                  size="small"
+                >
+                  <DeleteIcon fontSize="small" />
                 </IconButton>
               </li>
             ))}
@@ -239,8 +273,9 @@ const Menu = () => {
         <div className="flex-grow ml-4 bg-white p-4 shadow-md rounded-lg">
           <h2 className="text-2xl font-semibold mb-3">
             Items in "
-            {menuCategory.find((category) => category._id === selectedCategoryId)?.name ||
-              "Selected Category"}
+            {menuCategory.find(
+              (category) => category._id === selectedCategoryId
+            )?.name || "Selected Category"}
             "
           </h2>
           {filteredItems.length > 0 ? (
@@ -263,7 +298,10 @@ const Menu = () => {
                       <button className="bg-blue-500 text-white px-2 py-1 rounded-md mr-2">
                         Edit
                       </button>
-                      <button onClick={()=>handleRemoveItem(item._id)} className="bg-red-500 text-white px-2 py-1 rounded-md">
+                      <button
+                        onClick={() => handleRemoveItem(item._id)}
+                        className="bg-red-500 text-white px-2 py-1 rounded-md"
+                      >
                         Delete
                       </button>
                     </td>
@@ -272,7 +310,9 @@ const Menu = () => {
               </tbody>
             </table>
           ) : (
-            <p className="text-gray-500">No items available in this category.</p>
+            <p className="text-gray-500">
+              No items available in this category.
+            </p>
           )}
           <Button
             onClick={handleAddItemClick}
@@ -296,15 +336,22 @@ const Menu = () => {
             }
             className="mb-3"
           />
-          <TextField
-            label="Category Image URL"
-            fullWidth
-            value={newCategory.imageUrl}
-            onChange={(e) =>
-              setNewCategory({ ...newCategory, imageUrl: e.target.value })
-            }
-            className="mb-3"
-          />
+          <div >
+            <label htmlFor="file-input">
+              <img
+                src={image ? URL.createObjectURL(image) : upload_area}
+                className="addproduct-thumbnail-img"
+                alt="Category Preview"
+              />
+            </label>
+            <input
+              onChange={imageHandler}
+              type="file"
+              name="image"
+              id="file-input"
+              hidden
+            />
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose} color="primary">
@@ -344,7 +391,7 @@ const Menu = () => {
             }
             className="mb-3"
           />
-          <TextField
+          {/* <TextField
             label="Image URL"
             fullWidth
             value={newItem.imageUrl}
@@ -352,7 +399,23 @@ const Menu = () => {
               setNewItem({ ...newItem, imageUrl: e.target.value })
             }
             className="mb-3"
-          />
+          /> */}
+            <div >
+            <label htmlFor="file-input">
+              <img
+                src={image ? URL.createObjectURL(image) : upload_area}
+                className="addproduct-thumbnail-img"
+                alt="Category Preview"
+              />
+            </label>
+            <input
+              onChange={imageHandler}
+              type="file"
+              name="image"
+              id="file-input"
+              hidden
+            />
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleItemDialogClose} color="primary">

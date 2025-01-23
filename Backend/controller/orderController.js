@@ -29,22 +29,22 @@ exports.verifyOtp = async (req, res) => {
   const { phone, otp } = req.body;
 
   try {
-    const response = await client.verify.v2.services(serviceSid).verificationChecks.create({
-      to: `+91${phone}`,
-      code: otp,
-    });
+    const response = await client.verify.v2.services(serviceSid)
+      .verificationChecks.create({
+        to: `+91${phone}`,
+        code: otp,
+      });
 
-    // Use res to send the HTTP response
     if (response.status === "approved") {
-      res.json({ success: true, message: "OTP verified successfully!" });
+      return res.json({ success: true, message: "OTP verified successfully!" });
     } else {
-      res.json({ success: false, message: "Invalid OTP" });
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
     }
   } catch (error) {
-    // Use res to send the error response
     res.status(500).json({ success: false, message: "Failed to verify OTP", error });
   }
 };
+
 
 
 exports.updateOrderStatus = async (req, res) => {

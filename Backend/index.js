@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use('/img', express.static('upload/img'))
+app.use('/uploads', express.static('uploads'))
 app.post('/upload', upload.single('upload'), (req, res) => {
     res.json({
         success: 1,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import logo from '../assets/logo.png';
-import Sidebar from '../Components/Sidebar/Sidebar';
+import Sidebar from '../Components/Sidebar.jsx';
 import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
 import jsPDF from 'jspdf';

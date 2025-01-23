@@ -49,46 +49,53 @@ exports.menuItemsByCategory = async(req,res)=>{
   
 }
 
-exports.addMenuCategory =async(req,res)=>{
-    const {name, imageUrl} = req.body;
 
-    if(!name || !imageUrl){
-        return res.status(400).json({
-            success: false,
-            message: 'name and image are required'
-        });
+
+exports.addMenuCategory = async (req, res) => {
+    const { name } = req.body;
+    const imageFile = req.file;
+  
+    if (!name || !imageFile) {
+      return res.status(400).json({
+        success: false,
+        message: "Name and image are required.",
+      });
     }
-
+  
     try {
-        const newCategory = new Menu({name , imageUrl});
-        await newCategory.save();
-
-        return res.status(201).json({
-            success: true,
-            message:' new category added',
-            category: newCategory
-        })
+      const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
+  
+      const newCategory = new Menu({ name, imageUrl });
+      await newCategory.save();
+  
+      return res.status(201).json({
+        success: true,
+        message: "New category added.",
+        category: newCategory,
+      });
     } catch (error) {
-        console.error("Error adding menu category:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error.",
-        });
+      console.error("Error adding menu category:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error.",
+      });
     }
-}
+  };
 
 
 exports.addMenuItem = async (req, res) => {
-    const { name, price, category, description, imageUrl } = req.body;
+    const { name, price, category, description } = req.body;
 
-    if (!name || !price || !category || !imageUrl) {
+    if (!name || !price || !category || !req.file) {
         return res.status(400).json({
             success: false,
-            message: "Name, price, category, and image URL are required.",
+            message: "Name, price, category, and image file are required.",
         });
     }
 
     try {
+        const imageFile = req.file;
+        const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
         const newItem = new Items({ name, price, category, description, imageUrl });
         await newItem.save();
 

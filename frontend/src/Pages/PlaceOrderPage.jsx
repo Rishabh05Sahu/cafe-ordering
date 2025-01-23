@@ -15,14 +15,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CartContext } from "../CartContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Item from "../Components/Item";
 
 const PlaceOrderPage = () => {
   const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
   const navigate = useNavigate();
   const [otp, setOtp] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false); 
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0); 
+  const [resendTimer, setResendTimer] = useState(0);
   const { cart, addToCart, calculateTotal } = useContext(CartContext);
   const { seatId } = useParams();
   const [open, setOpen] = useState(false);
@@ -41,7 +42,7 @@ const PlaceOrderPage = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone: formData.phone }),
         });
-  
+
         if (response.ok) {
           setIsOtpSent(true);
           toast.success("OTP sent to your phone!");
@@ -59,19 +60,20 @@ const PlaceOrderPage = () => {
   const handleVerifyOtp = async () => {
     if (otp) {
       try {
-        // Call your backend API to verify OTP
         const url = `${backendUrl}/order/verify-otp`;
         const response = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ phone: formData.phone, otp }),
         });
-  
-        if (response.ok) {
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
           setIsOtpVerified(true);
-          toast.success("OTP verified successfully!");
+          toast.success(data.message || "OTP verified successfully!");
         } else {
-          toast.error("Invalid OTP. Please try again.");
+          toast.error(data.message || "Invalid OTP. Please try again.");
         }
       } catch (error) {
         toast.error("Error verifying OTP. Please try later.");
@@ -81,13 +83,12 @@ const PlaceOrderPage = () => {
     }
   };
 
-
   const handleResendOtp = async () => {
     if (resendTimer > 0) {
       toast.error(`Please wait ${resendTimer} seconds before resending OTP.`);
       return;
     }
-  
+
     try {
       const url = `${backendUrl}/order/send-otp`;
       const response = await fetch(url, {
@@ -95,7 +96,7 @@ const PlaceOrderPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: formData.phone }),
       });
-  
+
       if (response.ok) {
         setIsOtpSent(true);
         setResendTimer(30); // Cooldown for 30 seconds
@@ -107,7 +108,6 @@ const PlaceOrderPage = () => {
       toast.error("Error resending OTP. Please try later.");
     }
   };
-  
 
   useEffect(() => {
     let timer;
@@ -119,8 +119,6 @@ const PlaceOrderPage = () => {
     return () => clearInterval(timer); // Cleanup on unmount
   }, [resendTimer]);
 
-  
-  
   const handleQuantityChange = (item, action) => {
     addToCart(item, action);
   };
@@ -189,7 +187,7 @@ const PlaceOrderPage = () => {
     if (response.ok) {
       console.log("Order placed successfully:", data);
       toast.success("Order placed successfully!");
-      localStorage.removeItem("cart");
+      // localStorage.removeItem("cart");
     } else {
       console.error("Error placing order:", data.message);
       toast.error(`Error: ${data.message}`);
@@ -234,63 +232,17 @@ const PlaceOrderPage = () => {
   const invoiceTotal = invoiceTaxes + invoiceSubtotal;
 
   return (
-    <div className="bg-yellow-100 h-screen">
-      <div className="w-3/4 ml-36  ">
-        <div className="flex-col overflow-y-auto max-h-[400px] ">
+    <div className="flex flex-col items-center">
+      <div className="w-4/5 mx-auto overflow-y-auto max-h-[72vh]">
+        <div className="flex flex-col gap-y-6">
           {cart.map((item) => (
-            <div
-              key={item._id}
-              className="bg-yellow-100 w-3/4 h-30 border-2 border-solid border-black p-4 rounded-lg  flex items-center justify-between mt-4 ml-32"
-            >
-              <img
-                className="h-28 w-1/6 rounded-xl"
-                src={item.imageUrl}
-                alt={item.name}
-              />
-              <div className="flex-1 px-4">
-                <h2 className="font-semibold text-lg">{item.name}</h2>
-                <h3 className="font-semibold">Price:{item.price}</h3>
-                <h5>{item.description}</h5>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleQuantityChange(item, "decrement")}
-                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                >
-                  -
-                </button>
-                <input
-                  type="text"
-                  value={
-                    cart.find((cartItem) => cartItem.name === item.name)
-                      ?.quantity || 0
-                  }
-                  readOnly
-                  className="w-12 text-center border border-gray-300 rounded-md"
-                />
-                <button
-                  onClick={() => handleQuantityChange(item, "increment")}
-                  className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-                >
-                  +
-                </button>
-              </div>
-            </div>
+            <Item item={item} key={item._id} />
           ))}
         </div>
-        <TableContainer>
-          <Table
-            sx={{
-              width: "10%",
-              marginLeft: "14vw",
-              minWidth: 600,
-              backgroundColor: "rgb(254,249,195)",
-            }}
-            aria-label="spanning table"
-          >
+        <TableContainer className="mt-8">
+          <Table aria-label="spanning table">
             <TableBody>
               <TableRow>
-                <TableCell rowSpan={3} />
                 <TableCell colSpan={2}>Subtotal</TableCell>
                 <TableCell align="right">
                   {ccyFormat(calculateTotal())}
@@ -316,94 +268,102 @@ const PlaceOrderPage = () => {
         </TableContainer>
       </div>
       <Button
-        sx={{ bgcolor: "red", marginTop: 5, marginLeft: "43%" }}
+        className="bg-orange py-4 rounded-2xl w-3/4 mt-8"
         variant="contained"
         onClick={handleClickOpen}
       >
         Place Order
       </Button>
 
-      <Dialog open={open} onClose={handleClose}>
-  
-  {!isOtpSent && (<DialogTitle>Enter Your Details</DialogTitle>)}
-  <DialogContent>
-    {!isOtpSent && (
-      <>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Name"
-          type="text"
-          fullWidth
-          name="name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        />
-        <TextField
-          margin="dense"
-          label="Phone Number"
-          type="tel"
-          fullWidth
-          name="phone"
-          value={formData.phone}
-          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-        />
-        <Button
-          onClick={handleSendOtp}
-          color="primary"
-          variant="contained"
-          fullWidth
-        >
-          Send OTP
-        </Button>
-      </>
-    )}
+      <Dialog open={open} onClose={handleClose} >
+        {!isOtpSent && <DialogTitle>Enter Your Details</DialogTitle>}
+        <DialogContent>
+          {!isOtpSent && (
+            <div>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Name"
+                type="text"
+                fullWidth
+                name="name"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                sx={{ marginBottom: "8px" }}
+              />
+              <TextField
+                margin="dense"
+                label="Phone Number"
+                type="tel"
+                fullWidth
+                name="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                sx={{ marginBottom: "20px" }}
+              />
+              <Button
+                onClick={handleSendOtp}
+                variant="contained"
+                fullWidth
+                sx={{
+                  background: "var(--dark-green)",
+                  borderRadius: "8px",
+                }}
+              >
+                Send OTP
+              </Button>
+            </div>
+          )}
 
-    {isOtpSent && !isOtpVerified && (
-      <>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Enter OTP"
-          type="text"
-          fullWidth
-          value={otp}
-          onChange={(e) => setOtp(e.target.value)}
-        />
-          <Button
-        onClick={handleResendOtp}
-        color="secondary"
-        variant="outlined"
-        disabled={resendTimer > 0}
-        style={{ flex: 1 }}
-      >
-        Resend OTP {resendTimer > 0 ? `(${resendTimer}s)` : ""}
-      </Button>
-        <Button
-          onClick={handleVerifyOtp}
-          color="primary"
-          variant="contained"
-          fullWidth
-        >
-          Verify OTP
-        </Button>
-      </>
-    )}
-  </DialogContent>
-  {isOtpSent && isOtpVerified && (<DialogTitle>Confirm Order</DialogTitle>)}
-  <DialogActions>
-  
-    <Button onClick={handleClose} color="error">
-      Cancel
-    </Button>
-    {isOtpVerified  && (
-      <Button onClick={handleConfirm} color="primary" variant="contained">
-        Confirm
-      </Button>
-    )}
-  </DialogActions>
-</Dialog>
+          {isOtpSent && !isOtpVerified && (
+            <>
+              <TextField
+                autoFocus
+                margin="dense"
+                label="Enter OTP"
+                type="text"
+                fullWidth
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                sx={{ marginBottom: "20px" }}
+              />
+              <Button
+                onClick={handleResendOtp}
+                variant="outlined"
+                disabled={resendTimer > 0}
+                style={{ flex: 1, marginBottom: '20px ', color: 'var(--orange)', borderColor: 'var(--orange' }}
+              >
+                Resend OTP {resendTimer > 0 ? `(${resendTimer}s)` : ""}
+              </Button>
+              <Button
+                onClick={handleVerifyOtp}
+                variant="contained"
+                fullWidth
+                sx={{background: 'var(--dark-green)'}}
+              >
+                Verify OTP
+              </Button>
+            </>
+          )}
+        </DialogContent>
 
+        {isOtpSent && isOtpVerified && <DialogTitle>Confirm Order</DialogTitle>}
+
+        <DialogActions sx={{paddingBottom: '40px', marginTop: '20px'}}>
+          <Button onClick={handleClose} color="error">
+            Cancel
+          </Button>
+          {isOtpVerified && (
+            <Button onClick={handleConfirm} variant="contained" sx={{background: 'var(--dark-green)'}}>
+              Confirm
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
 
       <ToastContainer />
     </div>

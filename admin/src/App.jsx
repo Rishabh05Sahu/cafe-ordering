@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './Components/Sidebar/Sidebar';
+import Sidebar from './Components/Sidebar.jsx';
 import AllOrdersPage from './Pages/AllOrderPage';
 import MenuPage from './Pages/MenuPage';
 import QrGenerationPage from './Pages/QrPage';

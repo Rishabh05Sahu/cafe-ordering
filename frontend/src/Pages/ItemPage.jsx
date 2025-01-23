@@ -2,15 +2,21 @@ import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { CartContext } from "../CartContext.jsx";
 import { Button } from "@mui/material";
+import Backdrop from "@mui/material/Backdrop";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Navbar from "../Components/Navbar.jsx";
+import Item from "../Components/Item.jsx";
+import Cart from "../Components/Cart.jsx";
+import menu from '../assets/menu.svg'
 
 const ItemPage = () => {
   const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
   const navigate = useNavigate();
   const location = useLocation();
-  const {seatId} = useParams();
+  const { seatId } = useParams();
   const { categoryId } = location.state || {};
+  const { categoryName } = location.state || {};
   const [menuItem, setMenuItem] = useState([]);
   const [menuCategory, setMenuCategory] = useState([]);
   const { cart, addToCart, calculateTotal } = useContext(CartContext);
@@ -23,10 +29,6 @@ const ItemPage = () => {
   };
   const handleClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleQuantityChange = (item, action) => {
-    addToCart(item, action);
   };
 
   useEffect(() => {
@@ -53,14 +55,14 @@ const ItemPage = () => {
       const fetchMenuItems = async () => {
         const url = `${backendUrl}/menu/items/${categoryId}`;
         console.log("Fetching from URL:", url);
-  
+
         try {
           const response = await fetch(url);
-  
+
           if (!response.ok) {
             throw new Error(`HTTP Error! Status: ${response.status}`);
           }
-  
+
           const data = await response.json();
           console.log("Fetched Data:", data);
           setMenuItem(data);
@@ -68,71 +70,29 @@ const ItemPage = () => {
           console.error("Error fetching menu items:", error.message);
         }
       };
-  
+
       fetchMenuItems();
     }
-  }, [categoryId]); 
-  
+  }, [categoryId]);
 
   return (
-    <div className="bg-yellow-100 h-screen">
-     
-      <div className="flex-col overflow-y-auto max-h-[500px] ">
+    <div className="w-3/4 mx-auto">
+      <Navbar title={`${categoryName}`} />
+      <div className="flex flex-col gap-y-4 overflow-y-auto max-h-[80vh] items-center pb-20 w-4/5 mx-auto">
         {menuItem.map((item) => (
-          <div
-            key={item._id}
-            className="bg-yellow-100 w-3/4 h-30 border-2 border-solid border-black p-4 rounded-lg  flex items-center justify-between mt-4 ml-32"
-          >
-            <img className="h-28 w-1/6 rounded-xl" src={item.imageUrl} alt={item.name} />
-            <div className="flex-1 px-4">
-              <h2 className="font-semibold text-lg">{item.name}</h2>
-              <h3 className="font-semibold">Price:{item.price}</h3>
-              <h5>{item.description}</h5>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => handleQuantityChange(item, "decrement")}
-                className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-              >
-                -
-              </button>
-              <input
-                type="text"
-                value={
-                  cart.find((cartItem) => cartItem.name === item.name)
-                    ?.quantity || 0
-                }
-                readOnly
-                className="w-12 text-center border border-gray-300 rounded-md"
-              />
-              <button
-                onClick={() => handleQuantityChange(item, "increment")}
-                className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600"
-              >
-                +
-              </button>
-            </div>
-          </div>
+          <Item item={item} key={item._id} />
         ))}
       </div>
-      {cart.length > 0 && (
-        <div
-          onClick={() => navigate(`/seat-no/${seatId}/place-order`)}
-          style={{ cursor: "pointer" }}
-          className="flex-col place-items-center bg-red-300 rounded-lg w-1/3 m-auto mt-6 p-3 "
-        >
-          <p className="text-xl"> {cart.length} item(s) added </p>
-          <p>Total Order: ₹{calculateTotal()}</p>
-        </div>
-      )}
+      {cart.length > 0 && <Cart />}
       <Button
         sx={{
-          height: "7.5vh",
-          fontSize: "4vh",
+          height: "60px",
+          width: "60px",
+          fontSize: "36px",
           position: "absolute",
-          right: "10vw",
-          bottom: "10vh",
-          backgroundColor: "black",
+          right: "15vw",
+          bottom: "5vh",
+          backgroundColor: "rgb(255,82,0)",
           color: "white",
           borderRadius: "100%",
         }}
@@ -142,7 +102,7 @@ const ItemPage = () => {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        +
+      <img src={menu} alt="" />
       </Button>
 
       <Menu
@@ -163,12 +123,29 @@ const ItemPage = () => {
         }}
       >
         {menuCategory.map((category) => (
-          <MenuItem key={category._id} 
-          onClick={() => navigate(`/seat-no/${seatId}/item`,{ state: { categoryId: category._id } })}>
+          <MenuItem
+            key={category._id}
+            sx={{ width: "240px" }}
+            onClick={() =>
+              navigate(`/seat-no/${seatId}/item`, {
+                state: {
+                  categoryId: category._id,
+                  categoryName: category.name,
+                },
+              })
+            }
+          >
             {category.name}
           </MenuItem>
         ))}
       </Menu>
+
+      {/* backdrop  */}
+      <Backdrop
+        sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+        open={open}
+        onClick={handleClose}
+      ></Backdrop>
     </div>
   );
 };
