@@ -28,14 +28,12 @@ const MenuPage = () => {
   }, []);
 
   return (
-    <div className="bg-white w-3/4 mx-auto">
-      <div className="flex flex-col overflow-y-auto max-h-[80vh] items-center pb-20">
-        <ImageList cols={4} gap={40}>
-          {MenuCategory.map((category) => (
-            <Category category={category} key={category._id} />
-          ))}
-        </ImageList>
-      </div>
+    <div className="bg-white w-full max-w-screen-lg mx-auto px-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 overflow-y-auto max-h-[80vh] max-sm:h-[70vh] pb-4">
+      {MenuCategory.map((category) => (
+        <Category category={category} key={category._id} />
+      ))}
+    </div>
       {cart.length > 0 && <Cart />}
     </div>
   );

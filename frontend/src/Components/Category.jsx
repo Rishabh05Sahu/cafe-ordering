@@ -15,16 +15,7 @@ const Category = ({ category }) => {
           state: { categoryId: category._id, categoryName: category.name },
         })
       }
-      style={{
-        display: "flex",
-        alignItems: "center",
-        cursor: "pointer",
-        border: ".5px solid grey",
-        borderRadius: "15%",
-        height: "fit-content",
-        width: "200px",
-      }}
-    >
+       className="flex flex-col items-center justify-center  p-4 border border-gray-300 rounded-lg cursor-pointer hover:shadow-md">
       <img
         className="rounded-md"
         srcSet={`${category.imageUrl}?w=248&fit=crop&auto=format&dpr=2 2x`}

@@ -14,7 +14,7 @@ const Navbar = (props) => {
   const showSeatNo = location.pathname === `/seat-no/${seatId}`;
 
   return (
-    <div className="flex items-center justify-between px-8 w-2/3 h-[15vh]">
+    <div className="flex items-center justify-between px-8  w-2/3 max-sm:w-full max-sm:px-1 max-sm:justify-evenly h-[15vh] ">
       {showBackButton && (
         <IconButton
           aria-label="delete"
@@ -26,7 +26,7 @@ const Navbar = (props) => {
       )}
 
       {showSeatNo && (
-        <div className="bg-light_grey border-2 border-solid border-light_orange text-black py-4 px-12 rounded-lg">
+        <div className="bg-light_grey border-2 border-solid  border-light_orange text-black py-4 px-12 rounded-lg max-sm:py-2 max-sm:px-4">
           <p>Seat No: {seatId}</p>
         </div>
       )}
@@ -35,7 +35,7 @@ const Navbar = (props) => {
 
       {showLogo && (
         <img
-          className="h-20 rounded-full border-4 border-black"
+          className="h-20 rounded-full border-4 border-black max-sm:h-16"
           src={logo}
           alt=""
         />

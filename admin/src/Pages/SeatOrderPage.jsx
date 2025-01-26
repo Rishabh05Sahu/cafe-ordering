@@ -55,7 +55,7 @@ const SeatOrderPage = () => {
   const total = subtotal + taxes;
 
   return (
-    <div className="bg-yellow-100 h-screen">
+    <div className=" h-screen">
       <div className="flex items-center justify-between ml-10">
         <IconButton
           aria-label="delete"
@@ -79,7 +79,7 @@ const SeatOrderPage = () => {
         <div className="w-3/6 mt-4">
           <TableContainer>
             <Table
-              sx={{ minWidth: 600, backgroundColor: "rgb(254,249,195)" }}
+              sx={{ minWidth: 600, backgroundColor: "rgb(256,256,256)" }}
               aria-label="spanning table"
             >
               <TableHead>
@@ -132,7 +132,7 @@ const SeatOrderPage = () => {
         <Button
           onClick={() => setIsPaid(!isPaid)}
           sx={{
-            backgroundColor: isPaid ? "green" : "red",
+            backgroundColor: isPaid ? "green" : "var(--orange)",
             "&:hover": {
               backgroundColor: isPaid ? "darkgreen" : "darkred",
             },

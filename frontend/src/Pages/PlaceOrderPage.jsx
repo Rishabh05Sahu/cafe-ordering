@@ -233,8 +233,8 @@ const PlaceOrderPage = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-4/5 mx-auto overflow-y-auto max-h-[72vh]">
-        <div className="flex flex-col gap-y-6">
+      <div className="w-4/5 mx-auto overflow-y-auto max-h-[72vh] max-sm:w-full">
+        <div className="flex flex-col gap-y-6 max-sm:gap-y-3">
           {cart.map((item) => (
             <Item item={item} key={item._id} />
           ))}

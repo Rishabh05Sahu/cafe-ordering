@@ -16,27 +16,23 @@ const Sidebar = () => {
       {/* Menu Icon */}
       <IconButton
         onClick={handleToggleSidebar}
-        sx={{ fontSize: '32px', fontWeight: 'bold', color: 'black' }} 
+        sx={{ fontSize: '32px', fontWeight: 'bold', color: 'black' }}
       >
-        <MenuIcon sx={{fontSize:'6vh', marginTop:'2vh', marginLeft:'1.5vw'}}/>
+        <MenuIcon sx={{ fontSize: '6vh', marginTop: '2vh', marginLeft: '1.5vw' }} />
       </IconButton>
 
       {/* Drawer (Sidebar) */}
-      <Drawer
-        anchor="left"
-        open={open}
-        onClose={handleToggleSidebar} 
-      >
-        <List sx={{width:'20vw', marginTop:'1vh', marginLeft:'1vw'}}>
-          <ListItem button={true} onClick={() => navigate('/')}>
-            <ListItemText  primary="All Orders" />
+      <Drawer anchor="left" open={open} onClose={handleToggleSidebar}>
+        <List sx={{ width: '20vw', marginTop: '1vh', marginLeft: '1vw' }}>
+          <ListItem  onClick={() => navigate('/')}>
+            <ListItemText primary="All Orders" />
           </ListItem>
           <Divider />
-          <ListItem button={true} onClick={() => navigate('/menu')}>
+          <ListItem  onClick={() => navigate('/menu')}>
             <ListItemText primary="Menu" />
           </ListItem>
           <Divider />
-          <ListItem button={true} onClick={() => navigate('/qr-generation')}>
+          <ListItem  onClick={() => navigate('/qr-generation')}>
             <ListItemText primary="QR Generation" />
           </ListItem>
         </List>

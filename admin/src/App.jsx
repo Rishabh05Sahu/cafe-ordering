@@ -1,16 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './Components/Sidebar.jsx';
-import AllOrdersPage from './Pages/AllOrderPage';
-import MenuPage from './Pages/MenuPage';
-import QrGenerationPage from './Pages/QrPage';
-import SeatOrderPage from './Pages/SeatOrderPage';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./Components/Sidebar.jsx";
+import AllOrdersPage from "./Pages/AllOrderPage";
+import MenuPage from "./Pages/MenuPage";
+import QrGenerationPage from "./Pages/QrPage";
+import SeatOrderPage from "./Pages/SeatOrderPage";
 
 function App() {
   return (
     <Router>
-     
-      
       <Routes>
         <Route path="/" element={<AllOrdersPage />} />
         <Route path="/menu" element={<MenuPage />} />

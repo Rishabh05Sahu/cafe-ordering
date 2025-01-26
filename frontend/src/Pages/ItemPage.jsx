@@ -76,7 +76,7 @@ const ItemPage = () => {
   }, [categoryId]);
 
   return (
-    <div className="w-3/4 mx-auto">
+    <div className="w-3/4 mx-auto max-sm:w-[100%]">
       <Navbar title={`${categoryName}`} />
       <div className="flex flex-col gap-y-4 overflow-y-auto max-h-[80vh] items-center pb-20 w-4/5 mx-auto">
         {menuItem.map((item) => (
@@ -85,6 +85,7 @@ const ItemPage = () => {
       </div>
       {cart.length > 0 && <Cart />}
       <Button
+      className="max-sm:bottom-32 max-sm:right-3 max-sm:h-12 "
         sx={{
           height: "60px",
           width: "60px",
@@ -102,10 +103,11 @@ const ItemPage = () => {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-      <img src={menu} alt="" />
+      <img src={menu} alt="" className="max-sm:h-12" />
       </Button>
 
       <Menu
+      className="max-sm:h-[30vh] max-sm:w-[50vw]"
         anchorOrigin={{
           vertical: "top",
           horizontal: "left",

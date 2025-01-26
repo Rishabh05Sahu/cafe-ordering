@@ -4,6 +4,7 @@ import ItemPage from "./Pages/ItemPage";
 import PlaceOrderPage from "./Pages/PlaceOrderPage";
 import Navbar from "./Components/Navbar.jsx"; // Import your Navbar component
 
+
 function App() {
   return (
     <Router>
@@ -21,7 +22,7 @@ function App() {
         <Route
           path="/seat-no/:seatId/place-order"
           element={
-            <div className="bg-white w-3/4 mx-auto">
+            <div className="bg-white w-3/4  mx-auto">
               <Navbar title="Place Order" />
               <PlaceOrderPage />
             </div>
@@ -29,6 +30,8 @@ function App() {
         />
       </Routes>
     </Router>
+
+   
   );
 }
 

@@ -5,6 +5,7 @@ import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Navbar from '../Components/Navbar.jsx';
 
 const QrPage = () => {
   const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
@@ -82,16 +83,8 @@ const QrPage = () => {
   };
 
   return (
-    <div className="bg-yellow-100 h-screen flex-col">
-      <div className="flex items-center justify-between">
-        <Sidebar />
-        <h1 className="text-4xl">Generate QR</h1>
-        <img
-          className="h-24 rounded-full border-4 border-black mt-5 mr-7"
-          src={logo}
-          alt="Logo"
-        />
-      </div>
+    <div className=" h-screen flex-col">
+     <Navbar title="Generate QR"/>
 
       <div className="flex flex-col items-center mt-5">
         <TextField
@@ -111,7 +104,7 @@ const QrPage = () => {
         <Button
           onClick={handleGenerateQr}
           variant="contained"
-          className="mt-5"
+          className="mt-5 bg-orange"
         >
           Generate QR Codes
         </Button>
@@ -147,7 +140,7 @@ const QrPage = () => {
           <Button
             onClick={handleDownloadPdf}
             variant="contained"
-            className="mt-5"
+            className="mt-5 bg-orange"
           >
             Download PDF
           </Button>
