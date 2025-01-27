@@ -3,12 +3,13 @@ import MenuPage from "./Pages/MenuPage";
 import ItemPage from "./Pages/ItemPage";
 import PlaceOrderPage from "./Pages/PlaceOrderPage";
 import Navbar from "./Components/Navbar.jsx"; // Import your Navbar component
-
+import Home from "./Pages/Home.jsx";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/" element={<Home />}/>
         <Route
           path="/seat-no/:seatId"
           element={
@@ -30,8 +31,6 @@ function App() {
         />
       </Routes>
     </Router>
-
-   
   );
 }
 
