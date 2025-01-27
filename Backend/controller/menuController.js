@@ -52,10 +52,10 @@ exports.menuItemsByCategory = async(req,res)=>{
 
 
 exports.addMenuCategory = async (req, res) => {
-    const { name } = req.body;
-    const imageFile = req.file;
+    const { name ,imageUrl } = req.body;
+    // const imageFile = req.file;
   
-    if (!name || !imageFile) {
+    if (!name || !imageUrl) {
       return res.status(400).json({
         success: false,
         message: "Name and image are required.",
@@ -63,7 +63,7 @@ exports.addMenuCategory = async (req, res) => {
     }
   
     try {
-      const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
+    //   const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
   
       const newCategory = new Menu({ name, imageUrl });
       await newCategory.save();
@@ -84,9 +84,9 @@ exports.addMenuCategory = async (req, res) => {
 
 
 exports.addMenuItem = async (req, res) => {
-    const { name, price, category, description } = req.body;
-
-    if (!name || !price || !category || !req.file) {
+    const { name, price, category, description,imageUrl } = req.body;
+    
+    if (!name || !price || !category || !imageUrl) {
         return res.status(400).json({
             success: false,
             message: "Name, price, category, and image file are required.",
@@ -94,8 +94,8 @@ exports.addMenuItem = async (req, res) => {
     }
 
     try {
-        const imageFile = req.file;
-        const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
+        // const imageFile = req.file;
+        // const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${imageFile.filename}`;
         const newItem = new Items({ name, price, category, description, imageUrl });
         await newItem.save();
 

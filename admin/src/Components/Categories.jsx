@@ -3,7 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Delete";
 import upload_area from "../assets/upload_area.svg";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer,toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import {
   Button,
   Dialog,
@@ -13,17 +13,52 @@ import {
   TextField,
 } from "@mui/material";
 
-
-const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, setMenuCategory }) => {
+const Categories = ({
+  menuCategory,
+  selectedCategoryId,
+  setSelectedCategoryId,
+  setMenuCategory,
+}) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [newCategory, setNewCategory] = useState({ name: "", imageUrl: "" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const [image, setImage] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(upload_area);
 
-  const imageHandler = (e) => {
-    setImage(e.target.files[0]);
+  const fileHandler = (e) => {
+    // setImage(e.target.files[0]);
+    const file = e.target.files[0];
+
+    setNewCategory({
+      ...newCategory,
+      imageUrl: file,
+    });
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
+  const uploadFile = async () => {
+    if (!newCategory.imageUrl) return "";
+
+    const formData = new FormData();
+    formData.append("image", newCategory.imageUrl);
+
+    try {
+      const response = await fetch(`${backendUrl}/uploads`, {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+      if (result.success) {
+        return result.imageUrl;
+      } else {
+        alert("Failed to upload file.");
+        return "";
+      }
+    } catch (error) {
+      console.error("File upload error:", error);
+      return "";
+    }
+  };
 
   const handleCategoryClick = (category) => {
     setSelectedCategoryId(category._id);
@@ -39,16 +74,17 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
   };
 
   const handleSaveCategory = async () => {
+    const image = await uploadFile();
     if (!newCategory.name || !image) {
       toast.error("Please fill in all fields.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("name", newCategory.name);
-    formData.append("image", image);
-
     try {
+      const formData = new FormData();
+      formData.append("name", newCategory.name);
+      formData.append("imageUrl", image);
+
       const url = `${backendUrl}/menu/category`;
       const response = await fetch(url, {
         method: "POST",
@@ -100,7 +136,6 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
     <div className="w-1/3 bg-white  shadow-md rounded-3xl flex flex-col h-[75vh] overflow-y-scroll  items-center border-double border-2 border-black">
       <h2 className="text-2xl sticky top-3 font-semibold my-3">Categories</h2>
       <ul className="space-y-2 w-5/6">
-
         {menuCategory.map((category) => (
           <li
             key={category._id}
@@ -113,7 +148,7 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
           >
             <span>{category.name}</span>
             <IconButton
-              sx={{color:'red'}}
+              sx={{ color: "red" }}
               onClick={() => handleRemoveCategory(category._id)}
               aria-label="delete"
               size="small"
@@ -130,7 +165,7 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
         + Add Category
       </Button>
 
-      <Dialog open={dialogOpen} onClose={handleDialogClose} >
+      <Dialog open={dialogOpen} onClose={handleDialogClose}>
         <DialogTitle>Add New Category</DialogTitle>
         <DialogContent>
           <TextField
@@ -145,13 +180,13 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
           <div>
             <label htmlFor="file-input">
               <img
-                src={image ? URL.createObjectURL(image) : upload_area}
+                 src={previewUrl}
                 className="addproduct-thumbnail-img"
                 alt="Category Preview"
               />
             </label>
             <input
-              onChange={imageHandler}
+              onChange={fileHandler}
               type="file"
               name="image"
               id="file-input"
@@ -168,7 +203,6 @@ const Categories = ({ menuCategory, selectedCategoryId, setSelectedCategoryId, s
           </Button>
         </DialogActions>
       </Dialog>
-
 
       <ToastContainer />
     </div>

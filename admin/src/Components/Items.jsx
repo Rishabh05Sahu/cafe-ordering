@@ -17,61 +17,83 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
   const [itemData, setItemData] = useState([]);
   const [itemDialog, setItemDialog] = useState(false);
   const [image, setImage] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState(upload_area);
   const [newItem, setNewItem] = useState({
     name: "",
     price: "",
     category: "",
     description: "",
-    imageUrl: "",
+    imageUrl: null,
   });
 
-  const imageHandler = (e) => {
-    setImage(e.target.files[0]);
+ 
+
+
+  const fileHandler = (e) => {
+    const file = e.target.files[0];
+   
+    setNewItem({
+      ...newItem,
+      imageUrl: file,
+    });
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
-  useEffect(() => {
-    const fetchAllItem = async () => {
-      try {
-        const url = `${backendUrl}/menu/all-item`;
-        const response = await fetch(url);
+  const uploadFile = async () => {
+    if (!newItem.imageUrl) return "";
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch items.");
-        }
-        const result = await response.json();
-        setItemData(result.items);
-      } catch (error) {
-        console.error(error);
-        toast.error("Error fetching items.");
+    const formData = new FormData();
+    formData.append("image", newItem.imageUrl);
+
+    try {
+      const response = await fetch(`${backendUrl}/uploads`, {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+      if (result.success) {
+        return result.imageUrl;
+      } else {
+        alert("Failed to upload file.");
+        return "";
       }
-    };
+    } catch (error) {
+      console.error("File upload error:", error);
+      return "";
+    }
+  };
 
-    fetchAllItem();
-  }, [backendUrl]);
 
   const handleSaveItem = async () => {
+    const image = await uploadFile();
+    console.log("image url:", image);
     if (!newItem.name || !newItem.price || !selectedCategoryId || !image) {
       toast.error("Please fill in all fields.");
       return;
     }
+
+    if (isNaN(newItem.price) || newItem.price <= 0) {
+      toast.error("Price must be a positive number.");
+      return;
+    }
+
     try {
       const formData = new FormData();
       formData.append("name", newItem.name);
       formData.append("price", newItem.price);
       formData.append("category", selectedCategoryId);
       formData.append("description", newItem.description);
-      formData.append("image", image); // Append the file
+      formData.append("imageUrl", image);
 
       const response = await fetch(`${backendUrl}/menu/item`, {
         method: "POST",
-        body: formData, // Send FormData
+        body: formData,
       });
 
       if (response.ok) {
         const result = await response.json();
-        setMenuItems((prev) => [...prev, result.item]);
+        setItemData((prev) => [...prev, result.item]);
         toast.success("Item added successfully!");
-        setImage(false);
         handleItemDialogClose();
       } else {
         toast.error("Error adding item.");
@@ -82,6 +104,30 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
     }
   };
 
+
+
+  useEffect(() => {
+    const fetchAllItem = async () => {
+      try {
+        const url = `${backendUrl}/menu/all-item`;
+        const response = await fetch(url);
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch items.");
+        }
+        const result = await response.json();
+        setItemData(result.items || []);
+      } catch (error) {
+        console.error(error);
+        toast.error("Error fetching items. Please try again later.");
+      }
+    };
+  
+    fetchAllItem();
+  }, [backendUrl]);
+  
+
+  
   const handleRemoveItem = async (itemId) => {
     const url = `${backendUrl}/menu/item/${itemId}`;
     const response = await fetch(url, {
@@ -168,9 +214,9 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
       </Button>
 
       {/* Add Item Dialog */}
-      <Dialog open={itemDialog} onClose={handleItemDialogClose} >
+      <Dialog open={itemDialog} onClose={handleItemDialogClose}>
         <DialogTitle>Add New Item</DialogTitle>
-        <DialogContent >
+        <DialogContent>
           <TextField
             label="Item Name"
             fullWidth
@@ -196,11 +242,12 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
             className="mb-3"
           />
           <div>
-            <label htmlFor="file-input">
+            {/* <label htmlFor="file-input">
               <img
                 src={image ? URL.createObjectURL(image) : upload_area}
                 className="addproduct-thumbnail-img"
-                alt="Category Preview"
+                alt={image ? "Image Preview" : "Upload Area"}
+                onError={(e) => (e.target.src = upload_area)} // Fallback image
               />
             </label>
             <input
@@ -209,7 +256,21 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
               name="image"
               id="file-input"
               hidden
+            /> */}
+               <label htmlFor="file-input">
+            <img
+              src={previewUrl}
+              className="addnote-thumbnail-img"
+              alt="Preview"
             />
+          </label>
+          <input
+            onChange={fileHandler}
+            type="file"
+            name="note_file"
+            id="file-input"
+            hidden
+          />
           </div>
         </DialogContent>
         <DialogActions>
