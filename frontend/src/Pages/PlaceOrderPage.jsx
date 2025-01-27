@@ -306,7 +306,8 @@ const PlaceOrderPage = () => {
                 sx={{ marginBottom: "20px" }}
               />
               <Button
-                onClick={handleSendOtp}
+                // onClick={handleSendOtp}
+                onClick={handleOrder}
                 variant="contained"
                 fullWidth
                 sx={{
@@ -314,7 +315,8 @@ const PlaceOrderPage = () => {
                   borderRadius: "8px",
                 }}
               >
-                Send OTP
+                {/* Send OTP */}
+                place order
               </Button>
             </div>
           )}
