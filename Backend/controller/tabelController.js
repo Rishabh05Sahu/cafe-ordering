@@ -12,7 +12,7 @@ exports.generateTabelLinks = async (req, res) => {
     }
 
     try {
-        const baseUrl = "http://localhost:5174/seat-no";
+        const baseUrl = "https://cafe-ordering.vercel.app/seat-no";
         const generatedTabels = [];
 
         // Find the maximum seat number already present in the database
