@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext,useState } from "react";
 import { CartContext } from "../CartContext.jsx";
 
 const Item = ({ item }) => {
@@ -6,6 +6,12 @@ const Item = ({ item }) => {
 
   const handleQuantityChange = (item, action) => {
     addToCart(item, action);
+  };
+
+  const [isReadMore, setIsReadMore] = useState(false);
+
+  const toggleReadMore = () => {
+    setIsReadMore(!isReadMore);
   };
 
   return (
@@ -19,10 +25,22 @@ const Item = ({ item }) => {
         src={item.imageUrl}
         alt={item.name}
       />
-      <div className="flex flex-1 flex-col px-8  gap-y-2 max-sm:px-4 max-sm:gap-y-0">
+      <div className="flex flex-1 flex-col px-8  gap-y-2 max-sm:pl-4 max-sm:pr-1  max-sm:gap-y-0">
         <h2 className="font-semibold  text-lg max-sm:text-sm">{item.name}</h2>
-        <h3 className="font-semibold text-black max-sm:text-xs">₹{item.price}</h3>
-        <h5 className="text-grey max-sm:text-xs">{item.description}</h5>
+        <h3 className="font-semibold text-black max-sm:text-xs">
+          ₹{item.price}
+        </h3>
+        <h5 className="text-grey max-sm:text-xs">
+          {isReadMore
+            ? item.description
+            : `${item.description.slice(0, 17)}...`}
+        </h5>
+        <button 
+        onClick={toggleReadMore} 
+        className="text-orange text-start text-sm max-sm:text-xs"
+      >
+        {isReadMore ? 'Read Less' : 'Read More'}
+      </button>
       </div>
       <div className="flex items-center gap-2 max-sm:gap-1">
         <button

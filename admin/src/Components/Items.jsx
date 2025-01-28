@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import upload_area from "../assets/upload_area.svg";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
 import "react-toastify/dist/ReactToastify.css";
 import {
   Button,
@@ -26,12 +28,9 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
     imageUrl: null,
   });
 
- 
-
-
   const fileHandler = (e) => {
     const file = e.target.files[0];
-   
+
     setNewItem({
       ...newItem,
       imageUrl: file,
@@ -62,7 +61,6 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
       return "";
     }
   };
-
 
   const handleSaveItem = async () => {
     const image = await uploadFile();
@@ -104,14 +102,12 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
     }
   };
 
-
-
   useEffect(() => {
     const fetchAllItem = async () => {
       try {
         const url = `${backendUrl}/menu/all-item`;
         const response = await fetch(url);
-  
+
         if (!response.ok) {
           throw new Error("Failed to fetch items.");
         }
@@ -122,12 +118,10 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
         toast.error("Error fetching items. Please try again later.");
       }
     };
-  
+
     fetchAllItem();
   }, [backendUrl]);
-  
 
-  
   const handleRemoveItem = async (itemId) => {
     const url = `${backendUrl}/menu/item/${itemId}`;
     const response = await fetch(url, {
@@ -176,6 +170,7 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
         <table className="table-auto w-full border-collapse">
           <thead>
             <tr className="bg-light_orange">
+              <th className="border p-2"></th>
               <th className="border p-2">Name</th>
               <th className="border p-2">Price</th>
               <th className="border p-2">Description</th>
@@ -185,19 +180,20 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
           <tbody>
             {filteredItems.map((item) => (
               <tr key={item._id} className="hover:bg-gray-100">
+                <img className="mx-auto border p-2  h-20"  src={item.imageUrl} alt="" />
                 <td className="border p-2">{item.name}</td>
                 <td className="border p-2">₹{item.price}</td>
                 <td className="border p-2">{item.description}</td>
                 <td className="border p-2 text-center">
-                  <button className="bg-blue-400 text-white px-2 py-1 rounded-md mr-2">
-                    Edit
-                  </button>
-                  <button
+               
+                  <IconButton
+                    sx={{ color: "red", padding:'10px' }}
                     onClick={() => handleRemoveItem(item._id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded-md"
+                    aria-label="delete"
+                    size="small"
                   >
-                    Delete
-                  </button>
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
                 </td>
               </tr>
             ))}
@@ -257,20 +253,20 @@ const Items = ({ selectedCategoryId, menuCategory }) => {
               id="file-input"
               hidden
             /> */}
-               <label htmlFor="file-input">
-            <img
-              src={previewUrl}
-              className="addnote-thumbnail-img"
-              alt="Preview"
+            <label htmlFor="file-input">
+              <img
+                src={previewUrl}
+                className="addnote-thumbnail-img"
+                alt="Preview"
+              />
+            </label>
+            <input
+              onChange={fileHandler}
+              type="file"
+              name="note_file"
+              id="file-input"
+              hidden
             />
-          </label>
-          <input
-            onChange={fileHandler}
-            type="file"
-            name="note_file"
-            id="file-input"
-            hidden
-          />
           </div>
         </DialogContent>
         <DialogActions>

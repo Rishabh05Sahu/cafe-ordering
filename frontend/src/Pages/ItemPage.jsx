@@ -85,7 +85,7 @@ const ItemPage = () => {
       </div>
       {cart.length > 0 && <Cart />}
       <Button
-      className="max-sm:bottom-32 max-sm:right-3 max-sm:h-12 "
+      className="max-sm:bottom-32 max-sm:right-3 max-sm:h-14 "
         sx={{
           height: "60px",
           width: "60px",
@@ -107,7 +107,7 @@ const ItemPage = () => {
       </Button>
 
       <Menu
-      className="max-sm:h-[30vh] max-sm:w-[50vw]"
+      className="max-sm:h-[50vh] max-sm:w-[45vw]"
         anchorOrigin={{
           vertical: "top",
           horizontal: "left",

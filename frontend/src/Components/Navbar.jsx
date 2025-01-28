@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../assets/logo.png";
+import menu from "../assets/menu.svg";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import IconButton from "@mui/material/IconButton";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -31,12 +31,14 @@ const Navbar = (props) => {
         </div>
       )}
 
-      <h1 className="font-bold text-black text-5xl font-mono">{props.title}</h1>
+      <h1 className="font-bold text-black text-5xl font-mono max-sm:text-3xl ">
+        {props.title}
+      </h1>
 
       {showLogo && (
         <img
-          className="h-20 rounded-full border-4 border-black max-sm:h-16"
-          src={logo}
+          className="h-20 rounded-full border-2 bg-orange border-black max-sm:h-16"
+          src={menu}
           alt=""
         />
       )}

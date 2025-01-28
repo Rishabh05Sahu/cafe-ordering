@@ -47,3 +47,4 @@ exports.generateTabelLinks = async (req, res) => {
         });
     }
 };
+

@@ -24,7 +24,7 @@ function App() {
           path="/seat-no/:seatId/place-order"
           element={
             <div className="bg-white w-3/4  mx-auto">
-              <Navbar title="Place Order" />
+              <Navbar  title="Place Order" />
               <PlaceOrderPage />
             </div>
           }
