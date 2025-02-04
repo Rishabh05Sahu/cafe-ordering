@@ -9,6 +9,7 @@ import Navbar from "../Components/Navbar.jsx";
 import Item from "../Components/Item.jsx";
 import Cart from "../Components/Cart.jsx";
 import menu from '../assets/menu.svg'
+import { motion } from "motion/react";
 
 const ItemPage = () => {
   const backendUrl = `${import.meta.env.VITE_BACKEND_URL}`;
@@ -85,7 +86,7 @@ const ItemPage = () => {
       </div>
       {cart.length > 0 && <Cart />}
       <Button
-      className="max-sm:bottom-32 max-sm:right-3 max-sm:h-14 "
+      className="max-sm:bottom-32 max-sm:right-3 hover:scale-110 max-sm:h-14 "
         sx={{
           height: "60px",
           width: "60px",

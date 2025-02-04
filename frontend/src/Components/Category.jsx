@@ -2,13 +2,16 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ImageListItem from "@mui/material/ImageListItem";
 import ImageListItemBar from "@mui/material/ImageListItemBar";
+import { motion } from "motion/react"
 
 const Category = ({ category }) => {
   const navigate = useNavigate();
   const { seatId } = useParams();
 
   return (
-    <ImageListItem
+    <motion.ImageListItem
+    whileHover={{scale:1.01}}
+   
       key={category._id}
       onClick={() =>
         navigate(`/seat-no/${seatId}/item`, {
@@ -34,7 +37,7 @@ const Category = ({ category }) => {
           textAlign: "center",
         }}
       />
-    </ImageListItem>
+    </motion.ImageListItem>
   );
 };
 

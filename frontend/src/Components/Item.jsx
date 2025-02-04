@@ -1,5 +1,6 @@
 import React, { useContext,useState } from "react";
 import { CartContext } from "../CartContext.jsx";
+import { motion } from "motion/react"
 
 const Item = ({ item }) => {
   const { cart, addToCart } = useContext(CartContext);
@@ -43,12 +44,13 @@ const Item = ({ item }) => {
       </button>
       </div>
       <div className="flex items-center gap-2 max-sm:gap-1">
-        <button
+        <motion.button
+        whileTap={{scale:0.9}}
           onClick={() => handleQuantityChange(item, "decrement")}
           className="bg-light_grey text-black px-4 py-2 rounded-md hover:bg-grey font-bold max-sm:px-2 max-sm:py-0"
         >
           -
-        </button>
+        </motion.button>
         <input
           type="text"
           value={
@@ -57,12 +59,13 @@ const Item = ({ item }) => {
           readOnly
           className="w-12 py-2 text-center border border-gray-300 rounded-md max-sm:py-0 max-sm:w-6"
         />
-        <button
+        <motion.button
+        whileTap={{scale:0.9}}
           onClick={() => handleQuantityChange(item, "increment")}
           className="bg-light_grey text-black px-4 py-2 rounded-md hover:bg-grey font-bold max-sm:px-2 max-sm:py-0"
         >
           +
-        </button>
+        </motion.button>
       </div>
     </div>
   );

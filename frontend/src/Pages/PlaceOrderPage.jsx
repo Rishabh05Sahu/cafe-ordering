@@ -310,9 +310,11 @@ const PlaceOrderPage = () => {
                 onClick={handleOrder}
                 variant="contained"
                 fullWidth
+              
                 sx={{
                   background: "var(--dark-green)",
                   borderRadius: "8px",
+                 
                 }}
               >
                 {/* Send OTP */}
