@@ -1,6 +1,6 @@
-import React from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
-import ImageListItem from "@mui/material/ImageListItem";
+
 import ImageListItemBar from "@mui/material/ImageListItemBar";
 import { motion } from "motion/react"
 

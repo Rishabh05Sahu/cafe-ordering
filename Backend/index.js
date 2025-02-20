@@ -61,6 +61,11 @@ app.use('/admin', adminRoutes);
 app.use('/customers', customerRoutes);
 app.use('/table', tableRoutes)
 
+app.get("/ping", (req, res) => {
+    res.send("Server is awake!");
+  });
+  
+
 app.listen(port, (error) => {
     if (!error) {
         console.log(`server running on port ${port}`);
